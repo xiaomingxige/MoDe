@@ -44,7 +44,16 @@ python predict_DAUB_R.py
 ```
 ## Citation
 If you find this project is useful for your research, please cite:
-
+```bash
+@article{LUO2026184,
+title = {Synergizing motion and depth: A distilled dual-branch network for moving infrared small target detection},
+journal = {ISPRS Journal of Photogrammetry and Remote Sensing},
+volume = {242},
+pages = {184-197},
+year = {2026},
+author = {Dengyan Luo and Yanping Xiang and Hu Wang and Luping Ji and Song Tang and Mao Ye},
+}
+```
 
 
 
