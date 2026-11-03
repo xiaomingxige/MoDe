@@ -22,9 +22,24 @@ def fit_one_epoch(model_train, model, ema, yolo_loss, loss_history, eval_callbac
     for iteration, batch in enumerate(gen):
         if iteration >= epoch_step:
             break
-        #######################################
-        # Thanks for your attention! After the paper accept, we will open the details soon.
-        #######################################
+        images, targets, DAM_data_list = batch[0], batch[1], batch[2]  
+
+
+
+        depths_list = []
+        for DAM_datas in DAM_data_list: 
+
+            DAM_data = DAM_datas[-1, :, :, :]  
+            depth = DAM_model.infer_image(DAM_data) # HxW raw depth map in numpy
+
+
+            depth = np.expand_dims(depth, axis=-1)
+            depth = np.transpose(depth, (2, 0, 1))  
+
+            depths_list.append(depth)
+
+        depths_list = np.array(depths_list)  
+        depths_list = torch.from_numpy(depths_list).type(torch.FloatTensor)
 
 
         with torch.no_grad():

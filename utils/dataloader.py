@@ -16,7 +16,6 @@ def cvtColor(image):
         image = image.convert('RGB')
         return image 
     
-
 # normalization
 def preprocess(image):
     image /= 255.0
@@ -95,9 +94,99 @@ class seqDataset(Dataset):
 
 
     def get_data(self, index):
-        #######################################
-        # Thanks for your attention! After the paper accept, we will open the details soon.
-        #######################################
+        image_data = []
+        h, w = self.image_size, self.image_size
+        file_name = self.img_idx[index]  
+        self.suffix = '.' + file_name.split('.')[-1]
+
+        label_data = self.anno_idx[index]  
+
+        image_id = int(file_name.split("/")[-1][:-4])  
+        image_path = file_name.replace(file_name.split("/")[-1], '') 
+        
+        idx_list = list(range(image_id - self.num_frame + 1, image_id + 1))
+        images_list = sorted(glob.glob(image_path + f'/*{self.suffix}'))
+
+        nfs = len(images_list)
+        idx_list = np.clip(idx_list, 0, nfs-1) 
+
+
+        DAM_data_list = []
+        for id in idx_list:
+            img = Image.open(image_path + str(id) + self.suffix)
+            
+            img = cvtColor(img)
+            iw, ih = img.size
+            
+            w_scale = w / iw
+            h_scale = h / ih
+            new_img = img.resize((w, h), Image.BICUBIC)
+            image_data.append(np.array(new_img, np.float32))  # h, w, 3
+
+            raw_img = Image.open(image_path + str(id) + self.suffix)
+            raw_img = raw_img.convert('RGB')
+
+            new_img = raw_img.resize((w, h), Image.BICUBIC)
+            raw_img = np.array(new_img)
+            DAM_data_list.append(raw_img)
+
+            
+        if len(label_data) > 0:
+            np.random.shuffle(label_data)  # label_data如：[[ 55 106  63 114   0]]
+
+            # label_data[:, [0, 2]] = label_data[:, [0, 2]]*nw/iw + dx  # label_data[:, [0, 2]]: [[55 63]]
+            # label_data[:, [1, 3]] = label_data[:, [1, 3]]*nh/ih + dy
+
+            label_data[:, [0, 2]] = label_data[:, [0, 2]] * w_scale
+            label_data[:, [1, 3]] = label_data[:, [1, 3]] * h_scale
+
+            
+            
+            label_data[:, 0:2][label_data[:, 0:2]<0] = 0
+            label_data[:, 2][label_data[:, 2]>w] = w
+            label_data[:, 3][label_data[:, 3]>h] = h
+            # discard invalid box
+            box_w = label_data[:, 2] - label_data[:, 0]
+            box_h = label_data[:, 3] - label_data[:, 1]
+            label_data = label_data[np.logical_and(box_w>1, box_h>1)] 
+
+        image_data = np.array(image_data) # (5, h, w, 3)
+        label_data = np.array(label_data, dtype=np.float32) # (1, 5)
+
+        DAM_data_list = np.array(DAM_data_list) # (5, h, w, 3)
+
+        if self.aug is True:
+            pass
+            # image_data, label_data[:, :4] = augmentation(image_data, label_data[:, :4], h, w)
+        return image_data, label_data, DAM_data_list
+
+    def __len__(self):
+        return self.length
+    
+    def __getitem__(self, index):
+        images, box, DAM_data = self.get_data(index)
+        images = np.transpose(preprocess(images), (3, 0, 1, 2))  # t, h, w, c --> c, t, h, w 
+
+        if len(box) != 0:
+            box[:, 2:4] = box[:, 2:4] - box[:, 0:2]
+            box[:, 0:2] = box[:, 0:2] + (box[:, 2:4] / 2)
+        return images, box, DAM_data
+
+                    
+def dataset_collate(batch):
+    images = []
+    bboxes = []
+
+    DAM_data_list = []
+    for img, box, DAM_data in batch:
+        images.append(img)
+        bboxes.append(box)
+
+        DAM_data_list.append(DAM_data)
+    images = torch.from_numpy(np.array(images)).type(torch.FloatTensor)
+    bboxes = [torch.from_numpy(ann).type(torch.FloatTensor) for ann in bboxes]
+
+    return images, bboxes, DAM_data_list
 
                 
             
