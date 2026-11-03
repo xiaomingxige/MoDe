@@ -418,4 +418,3 @@ class Network(nn.Module):
         for _ in range(num_of_layer):
             layers.append(block())
         return nn.Sequential(*layers)
-    

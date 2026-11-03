@@ -182,6 +182,3 @@ def dataset_collate(batch):
     bboxes = [torch.from_numpy(ann).type(torch.FloatTensor) for ann in bboxes]
 
     return images, bboxes, DAM_data_list
-
-                
-            

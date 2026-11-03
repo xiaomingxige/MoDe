@@ -185,10 +185,7 @@ class EvalCallback():
 
             for annotation_line in tqdm(self.val_lines):
                 line        = annotation_line.split()
-                '''
-                    # 不同视频的图片序号会重复， 视频号-图片序号作为id 
-                '''
-                image_id    = line[0].split('/')[-2] + '-' + line[0].split('/')[-1][:-4] # 如data6-0
+                image_id    = line[0].split('/')[-2] + '-' + line[0].split('/')[-1][:-4] 
   
                 #------------------------------#
                 #   读取图像
