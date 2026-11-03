@@ -257,8 +257,7 @@ def get_history_imgs(line, num_frame=2):
 
     images = []
     for id in idx_list:
-        # images.append(dir_path + '0' * (8 - len(str(id)))  +  str(id) + '.' + file_type)
-        images.append(dir_path +  str(id) + '.' + file_type)
+        images.append(dir_path + str(id) + '.' + file_type)
     return images
 
 

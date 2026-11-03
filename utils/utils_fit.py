@@ -24,8 +24,6 @@ def fit_one_epoch(model_train, model, ema, yolo_loss, loss_history, eval_callbac
             break
         images, targets, DAM_data_list = batch[0], batch[1], batch[2]  
 
-
-
         depths_list = []
         for DAM_datas in DAM_data_list: 
 
@@ -100,7 +98,6 @@ def fit_one_epoch(model_train, model, ema, yolo_loss, loss_history, eval_callbac
         pbar.close()
         print('Finish Validation')
         loss_history.append_loss(epoch + 1, loss / epoch_step, val_loss / epoch_step_val)
-        # if 'DAUB' in file_name:
         eval_callback.on_epoch_end(epoch + 1, model_train_eval, num_frame)
 
         print('Epoch:'+ str(epoch + 1) + '/' + str(Epoch))
