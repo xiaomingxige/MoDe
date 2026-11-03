@@ -6,8 +6,6 @@ import torch.nn.functional as F
 
 from .darknet import BaseConv, CSPDarknet, CSPLayer, DWConv
 
-# from darknet import BaseConv, CSPDarknet, CSPLayer, DWConv
-
 
 class PixelVAE(nn.Module):
     def __init__(self, in_channels, out_channels, z_dim=32,  hidden_dim=128, act='silu'):

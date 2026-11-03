@@ -132,16 +132,11 @@ class seqDataset(Dataset):
 
             
         if len(label_data) > 0:
-            np.random.shuffle(label_data)  # label_data如：[[ 55 106  63 114   0]]
-
-            # label_data[:, [0, 2]] = label_data[:, [0, 2]]*nw/iw + dx  # label_data[:, [0, 2]]: [[55 63]]
-            # label_data[:, [1, 3]] = label_data[:, [1, 3]]*nh/ih + dy
+            np.random.shuffle(label_data)  
 
             label_data[:, [0, 2]] = label_data[:, [0, 2]] * w_scale
             label_data[:, [1, 3]] = label_data[:, [1, 3]] * h_scale
 
-            
-            
             label_data[:, 0:2][label_data[:, 0:2]<0] = 0
             label_data[:, 2][label_data[:, 2]>w] = w
             label_data[:, 3][label_data[:, 3]>h] = h
